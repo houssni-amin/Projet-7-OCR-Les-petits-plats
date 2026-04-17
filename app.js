@@ -1,9 +1,11 @@
 const app = document.getElementById("app")
+app.className = "min-h-screen flex flex-col"
 
-// --- HEADER ---
+// ------- HEADER -------
+
 const header = document.createElement("header")
 header.className =
-  "relative w-full h-[667px] bg-[linear-gradient(rgba(0,0,0,0.3),rgba(0,0,0,0.3)),url('./header-bg.jpg')] bg-cover bg-center flex flex-col items-center justify-center"
+	"relative w-full h-[667px] bg-[linear-gradient(rgba(0,0,0,0.3),rgba(0,0,0,0.3)),url('./header-bg.jpg')] bg-cover bg-center flex flex-col items-center justify-center"
 
 const logo = document.createElement("img")
 logo.src = "/Logo.png"
@@ -11,7 +13,7 @@ logo.className = "absolute top-15 left-15 w-60"
 
 const h1 = document.createElement("h1")
 h1.innerHTML =
-  "CHERCHEZ PARMI PLUS DE 1500 RECETTES </br> DU QUOTIDIEN, SIMPLES ET DÉLICIEUSES"
+	"CHERCHEZ PARMI PLUS DE 1500 RECETTES </br> DU QUOTIDIEN, SIMPLES ET DÉLICIEUSES"
 h1.className = "text-[#FFD15B] font-anton text-5xl text-center mb-8 leading-18"
 
 const searchBar = document.createElement("div")
@@ -35,20 +37,26 @@ header.appendChild(logo)
 header.appendChild(h1)
 header.appendChild(searchBar)
 
-// --- FILTERS & METERS ---
+// ----- SECTION DES FILTRES (DROPDOWNS) -----
+
 const filterSection = document.createElement("div")
 filterSection.className =
-  "w-full bg-[#E5E5E5] px-[10%] pt-5 pb-10 flex flex-wrap gap-y-4 justify-between items-center relative"
+	"w-full bg-[#E5E5E5] px-[10%] pt-5 pb-10 flex flex-wrap gap-y-4 justify-between items-center relative"
 
 const filtersContainer = document.createElement("div")
 filtersContainer.className = "flex gap-4 flex-wrap"
 
-// Fonction de création du bouton filtre avec input interne
-function createFilterButton(label, id, placeholderText) {
-  const container = document.createElement("div")
-  container.className = "relative mr-4"
+// Conteneur dynamique qui accueillera les Tags sélectionnés.
+const tagsContainer = document.createElement("div")
+tagsContainer.className = "w-full flex gap-4 flex-wrap mt-4"
 
-  container.innerHTML = /* html */ `
+// Fonction qui permet de générer des composants menus déroulants réutilisables.
+function createFilterButton(label, id, placeholderText) {
+	const container = document.createElement("div")
+	container.className = "relative mr-4"
+
+	// Template du menu qui inclut le bouton, la recherche interne et la liste.
+	container.innerHTML = /* html */ `
     <button id="btn-${id}" class="bg-white w-44 h-16 rounded-xl px-4 flex items-center justify-between cursor-pointer font-bold text-lg transition-all duration-200 hover:bg-[#FFD15B] z-20 relative text-left">
         <span>${label}</span>
         <svg id="chevron-${id}" class="w-4 h-4 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -73,203 +81,280 @@ function createFilterButton(label, id, placeholderText) {
     </div>
   `
 
-  const btn = container.querySelector(`#btn-${id}`)
-  const dropdown = container.querySelector(`#dropdown-${id}`)
-  const chevron = container.querySelector(`#chevron-${id}`)
-  const input = container.querySelector(`#search-${id}`)
-  const list = container.querySelector(`#list-${id}`)
+	// Ciblage des éléments internes du composant pour la gestion des événements.
+	const btn = container.querySelector(`#btn-${id}`)
+	const dropdown = container.querySelector(`#dropdown-${id}`)
+	const chevron = container.querySelector(`#chevron-${id}`)
+	const input = container.querySelector(`#search-${id}`)
+	const list = container.querySelector(`#list-${id}`)
 
-  // Gestion ouverture/fermeture
-  btn.addEventListener("click", (e) => {
-    e.stopPropagation()
-    const isClosed = dropdown.classList.contains("hidden")
+	// Gestion (Ouverture/Fermeture) des dropdown.
+	btn.addEventListener("click", (e) => {
+		e.stopPropagation()
+		const isClosed = dropdown.classList.contains("hidden")
 
-    // Fermer tous les autres filtres d'abord
-    closeAllFilters()
+		closeAllFilters()
 
-    if (isClosed) {
-      dropdown.classList.remove("hidden")
-      btn.classList.add("rounded-b-none")
-      chevron.classList.add("rotate-180")
-      input.focus()
-    }
-  })
+		if (isClosed) {
+			dropdown.classList.remove("hidden")
+			btn.classList.add("rounded-b-none")
+			chevron.classList.add("rotate-180")
+			input.focus()
+		}
+	})
 
-  dropdown.addEventListener("click", (e) => e.stopPropagation())
+	// Bloque la propagation quand on click à l'intérieur.
+	dropdown.addEventListener("click", (e) => e.stopPropagation())
 
-  // Filtrage via la barre de recherche
-  input.addEventListener("input", (e) => {
-    const value = e.target.value.toLowerCase()
-    const items = list.querySelectorAll("p")
-    items.forEach((item) => {
-      const text = item.innerText.toLowerCase()
-      item.style.display = text.includes(value) ? "block" : "none"
-    })
-  })
+	// Recherche d'un mot à l'intérieur du menu déroulant.
+	input.addEventListener("input", (e) => {
+		const value = e.target.value.toLowerCase()
+		const items = list.querySelectorAll("p")
+		items.forEach((item) => {
+			const text = item.innerText.toLowerCase()
+			item.style.display = text.includes(value) ? "block" : "none"
+		})
+	})
 
-  return container
+	return container
 }
 
-// Fonction pour tout fermer
+// Fonction pour fermer tout les dropdowns.
 function closeAllFilters() {
-  document
-    .querySelectorAll("[id^='dropdown-']")
-    .forEach((el) => el.classList.add("hidden"))
-  document
-    .querySelectorAll("[id^='btn-']")
-    .forEach((el) => el.classList.remove("rounded-b-none"))
-  document
-    .querySelectorAll("[id^='chevron-']")
-    .forEach((el) => el.classList.remove("rotate-180"))
+	document.querySelectorAll("[id^='dropdown-']").forEach((el) => {
+		el.classList.add("hidden")
+	})
+	document.querySelectorAll("[id^='btn-']").forEach((el) => {
+		el.classList.remove("rounded-b-none")
+	})
+	document.querySelectorAll("[id^='chevron-']").forEach((el) => {
+		el.classList.remove("rotate-180")
+	})
 }
 
-// Fermer les menus si on clique ailleurs sur la page
+// Fermeture globale si l'utilisateur clique en dehors d'un dropdown.
 document.addEventListener("click", closeAllFilters)
 
-// Création des 3 filtres
+// Instanciation des 3 menus de filtrage.
 const filterIngredients = createFilterButton(
-  "Ingrédients",
-  "ingredients",
-  "Rechercher...",
+	"Ingrédients",
+	"ingredients",
+	"Rechercher...",
 )
 const filterAppareils = createFilterButton(
-  "Appareils",
-  "appareils",
-  "Rechercher...",
+	"Appareils",
+	"appareils",
+	"Rechercher...",
 )
 const filterUstensiles = createFilterButton(
-  "Ustensiles",
-  "ustensiles",
-  "Rechercher...",
+	"Ustensiles",
+	"ustensiles",
+	"Rechercher...",
 )
 
 filtersContainer.appendChild(filterIngredients)
 filtersContainer.appendChild(filterAppareils)
 filtersContainer.appendChild(filterUstensiles)
 
+// Indicateur du nombre de résultats.
 const recipeCounter = document.createElement("div")
 recipeCounter.className = "font-anton text-2xl"
 
 filterSection.appendChild(filtersContainer)
 filterSection.appendChild(recipeCounter)
+filterSection.appendChild(tagsContainer)
 
-// --- MAIN ---
+// ----- MOTEUR DE FILTRAGE PAR TAGS -----
+
+let allRecipes = []
+const activeTags = new Set() // Utilisation d'un Set pour garantir l'unicité des tags.
+
+// Algorithme de tri principal utilisant la programmation fonctionnelle.
+function applyFilters() {
+	const tagsArray = Array.from(activeTags)
+
+	const finalRecipes = allRecipes.filter((recipe) => {
+		// La recette doit correspondre à TOUS les tags sélectionnés (.every).
+		return tagsArray.every((tag) => {
+			// On cherche la correspondance du tag dans les tableaux (.some) ou les strings (.includes).
+			const inIngr = recipe.ingredients.some((i) =>
+				i.ingredient.toLowerCase().includes(tag),
+			)
+			const inApp = recipe.appliance.toLowerCase().includes(tag)
+			const inUst = recipe.ustensils.some((u) => u.toLowerCase().includes(tag))
+
+			return inIngr || inApp || inUst
+		})
+	})
+
+	// Mise à jour de l'interface avec les données filtré.
+	renderRecipesCards(finalRecipes)
+}
+
+// Fonction gérant l'ajout d'un filtre et la création de son composant visuel (tag).
+function addTag(mot) {
+	if (activeTags.has(mot)) return
+
+	activeTags.add(mot)
+
+	const badge = document.createElement("div")
+	badge.className =
+		"bg-[#FFD15B] py-2 px-4 rounded-[10px] flex items-center gap-3 font-medium"
+	badge.innerHTML = `<span class="text-sm capitalize">${mot}</span><button class="cursor-pointer">✕</button>`
+
+	// Gestion de la suppression : mise à jour des tag.
+	badge.querySelector("button").addEventListener("click", () => {
+		badge.remove()
+		activeTags.delete(mot)
+		applyFilters()
+	})
+
+	tagsContainer.appendChild(badge)
+	applyFilters()
+}
+
+// ----- RENDU DES CARTES (UI) -----
+
 const main = document.createElement("main")
 main.className =
-  "w-full bg-[#E5E5E5] pb-10 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10 px-[10%]"
+	"w-full bg-[#E5E5E5] flex-grow pb-10 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10 px-[10%]"
 
-async function displayRecipes() {
-  const { recipes } = await import("./recipes.js")
+// Fonction de rendu dynamique, reçoit un tableau de données et reconstruit le DOM.
+function renderRecipesCards(recipesArray) {
+	main.innerHTML = "" // Purge de la grille avant chaque nouveau rendu.
+	recipeCounter.innerText = `${recipesArray.length} recettes`
 
-  recipeCounter.innerText = `${recipes.length} recettes`
+	// Gestion du cas d'erreur (aucun résultat).
+	if (recipesArray.length === 0) {
+		main.innerHTML = `<p class="col-span-full text-center text-xl font-bold mt-10">Aucune recette ne correspond à vos filtres.</p>`
+		return
+	}
 
-  // Préparation des données pour les filtres
-  const ingredientsSet = new Set()
-  const appareilsSet = new Set()
-  const ustensilesSet = new Set()
+	// Itération sur le jeu de données pour construire chaque composant Carte.
+	recipesArray.forEach((recipe) => {
+		const container = document.createElement("div")
+		container.className =
+			"max-w-[380px] h-auto flex flex-col bg-white rounded-xl overflow-hidden shadow-md relative"
 
-  recipes.forEach((recipe) => {
-    recipe.ingredients.forEach((i) =>
-      ingredientsSet.add(i.ingredient.toLowerCase()),
-    )
-    appareilsSet.add(recipe.appliance.toLowerCase())
-    recipe.ustensils.forEach((u) => ustensilesSet.add(u.toLowerCase()))
-  })
+		const time = document.createElement("p")
+		time.innerText = `${recipe.time}min`
+		time.className =
+			"absolute top-5 right-5 bg-[#FFD15B] py-1 px-5 rounded-full"
 
-  // Remplissage des Listes Déroulantes
-  const fillList = (setItems, listId) => {
-    const listContainer = document.querySelector(`#list-${listId}`)
-    listContainer.innerHTML = ""
+		const image = document.createElement("img")
+		image.src = `./pictures/${recipe.image}`
+		image.className = "object-cover w-full h-[250px]"
 
-    Array.from(setItems)
-      .sort()
-      .forEach((mot) => {
-        const p = document.createElement("p")
-        p.innerText = mot
-        p.className =
-          "text-sm text-black py-1 px-2 cursor-pointer hover:bg-[#FFD15B] rounded capitalize transition-colors"
+		const textContainer = document.createElement("div")
+		textContainer.className = "m-5"
 
-        p.addEventListener("click", () => {
-          console.log("Filtre cliqué :", mot)
-          closeAllFilters()
-        })
+		const name = document.createElement("h2")
+		name.innerText = recipe.name
+		name.className = " font-bold mb-6 text-lg font-anton "
 
-        listContainer.appendChild(p)
-      })
-  }
+		const recetteTitle = document.createElement("p")
+		recetteTitle.innerText = "RECETTE"
+		recetteTitle.className = "mb-2 font-bold text-neutral-500 text-xs"
 
-  fillList(ingredientsSet, "ingredients")
-  fillList(appareilsSet, "appareils")
-  fillList(ustensilesSet, "ustensiles")
+		const description = document.createElement("p")
+		description.innerText = recipe.description
+		description.className = "line-clamp-4 font-normal text-sm"
 
-  // --- Génération des Cartes Recettes ---
-  recipes.forEach((recipe) => {
-    const container = document.createElement("div")
-    container.className =
-      "max-w-[380px] h-auto flex flex-col bg-white rounded-xl overflow-hidden shadow-md relative"
+		const ingredientsTitle = document.createElement("p")
+		ingredientsTitle.innerText = "INGRÉDIENTS"
+		ingredientsTitle.className = "mt-8 mb-2 font-bold text-neutral-500 text-xs"
 
-    const time = document.createElement("p")
-    time.innerText = `${recipe.time}min`
-    time.className =
-      "absolute top-5 right-5 bg-[#FFD15B] py-1 px-5 rounded-full"
+		const ingredientsGrid = document.createElement("div")
+		ingredientsGrid.className = "grid grid-cols-2 gap-y-4"
 
-    const image = document.createElement("img")
-    image.src = `./pictures/${recipe.image}`
-    image.className = "object-cover w-full h-[250px]"
+		// Sous-itération pour structurer proprement la liste des ingrédients.
+		recipe.ingredients.forEach((item) => {
+			const ingredientsBlock = document.createElement("div")
 
-    const textContainer = document.createElement("div")
-    textContainer.className = "m-5"
+			const ingredientName = document.createElement("p")
+			ingredientName.innerText = item.ingredient
+			ingredientName.className = "text-sm font-medium font-normal"
 
-    const name = document.createElement("h2")
-    name.innerText = recipe.name
-    name.className = " font-bold mb-6 text-lg font-anton "
+			const ingredientQty = document.createElement("p")
+			const quantity = item.quantity ? item.quantity : ""
+			const unit = item.unit ? item.unit : ""
+			ingredientQty.innerText = `${quantity} ${unit}`
+			ingredientQty.className = "text-sm text-neutral-500"
 
-    const recetteTitle = document.createElement("p")
-    recetteTitle.innerText = "RECETTE"
-    recetteTitle.className = "mb-2 font-bold text-neutral-500 text-xs"
+			ingredientsBlock.appendChild(ingredientName)
+			ingredientsBlock.appendChild(ingredientQty)
+			ingredientsGrid.appendChild(ingredientsBlock)
+		})
 
-    const description = document.createElement("p")
-    description.innerText = recipe.description
-    description.className = "line-clamp-4 font-normal text-sm"
+		textContainer.appendChild(name)
+		textContainer.appendChild(recetteTitle)
+		textContainer.appendChild(description)
+		textContainer.appendChild(ingredientsTitle)
+		textContainer.appendChild(ingredientsGrid)
 
-    const ingredientsTitle = document.createElement("p")
-    ingredientsTitle.innerText = "INGRÉDIENTS"
-    ingredientsTitle.className = "mt-8 mb-2 font-bold text-neutral-500 text-xs"
+		container.appendChild(time)
+		container.appendChild(image)
+		container.appendChild(textContainer)
 
-    const ingredientsGrid = document.createElement("div")
-    ingredientsGrid.className = "grid grid-cols-2 gap-y-4"
-
-    recipe.ingredients.forEach((item) => {
-      const ingredientsBlock = document.createElement("div")
-
-      const ingredientName = document.createElement("p")
-      ingredientName.innerText = item.ingredient
-      ingredientName.className = "text-sm font-medium font-normal"
-
-      const ingredientQty = document.createElement("p")
-      const quantity = item.quantity ? item.quantity : ""
-      const unit = item.unit ? item.unit : ""
-      ingredientQty.innerText = `${quantity} ${unit}`
-      ingredientQty.className = "text-sm text-neutral-500"
-
-      ingredientsBlock.appendChild(ingredientName)
-      ingredientsBlock.appendChild(ingredientQty)
-      ingredientsGrid.appendChild(ingredientsBlock)
-    })
-
-    textContainer.appendChild(name)
-    textContainer.appendChild(recetteTitle)
-    textContainer.appendChild(description)
-    textContainer.appendChild(ingredientsTitle)
-    textContainer.appendChild(ingredientsGrid)
-
-    container.appendChild(time)
-    container.appendChild(image)
-    container.appendChild(textContainer)
-
-    main.appendChild(container)
-  })
+		main.appendChild(container)
+	})
 }
+
+// ----- INITIALISATION DES DONNÉES -----
+
+// Point d'entrée asynchrone : gère l'importation des données externes.
+async function displayRecipes() {
+	const { recipes } = await import("./recipes.js")
+
+	// Sauvegarde dans ma mémoire globale.
+	allRecipes = recipes
+
+	// Liste tous les mots sans doublon pour remplir les dropdowns.
+	const ingredientsSet = new Set()
+	const appareilsSet = new Set()
+	const ustensilesSet = new Set()
+
+	recipes.forEach((recipe) => {
+		recipe.ingredients.forEach((i) => {
+			ingredientsSet.add(i.ingredient.toLowerCase())
+		})
+		appareilsSet.add(recipe.appliance.toLowerCase())
+		recipe.ustensils.forEach((u) => {
+			ustensilesSet.add(u.toLowerCase())
+		})
+	})
+
+	// Remplissage des dropdowns.
+	const fillList = (setItems, listId) => {
+		const listContainer = document.querySelector(`#list-${listId}`)
+		listContainer.innerHTML = ""
+
+		Array.from(setItems)
+			.sort() // Tri par ordre alphabétique
+			.forEach((mot) => {
+				const p = document.createElement("p")
+				p.innerText = mot
+				p.className =
+					"text-sm text-black py-1 px-2 cursor-pointer hover:bg-[#FFD15B] rounded capitalize transition-colors"
+
+				// On lie l'événement d'ajout de tag directement aux éléments de la liste.
+				p.addEventListener("click", () => {
+					addTag(mot)
+					closeAllFilters()
+				})
+
+				listContainer.appendChild(p)
+			})
+	}
+
+	fillList(ingredientsSet, "ingredients")
+	fillList(appareilsSet, "appareils")
+	fillList(ustensilesSet, "ustensiles")
+
+	renderRecipesCards(allRecipes)
+}
+
+// ----- MONTAGE FINAL -----
 
 app.innerHTML = ""
 app.appendChild(header)
