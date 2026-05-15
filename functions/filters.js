@@ -11,25 +11,65 @@ export function applyFilters() {
 		return
 	}
 
-	const finalRecipes = allRecipes.filter((recipe) => {
-		// Condition stricte "ET" : la recette doit valider TOUS les tags actifs
-		return tagsArray.every((tag) => {
-			// Recherche de niveau 1 (Strings simples)
-			const inTitle = recipe.name.toLowerCase().includes(tag)
-			const inDesc = recipe.description.toLowerCase().includes(tag)
-			const inApp = recipe.appliance.toLowerCase().includes(tag)
+	const finalRecipes = []
 
-			// Recherche de niveau 2 (Tableaux via .some)
-			const inIngr = recipe.ingredients.some((i) =>
-				i.ingredient.toLowerCase().includes(tag),
-			)
+	// Itération principale sur l'ensemble des données
+	for (let i = 0; i < allRecipes.length; i++) {
+		const recipe = allRecipes[i]
 
-			const inUst = recipe.ustensils.some((u) => u.toLowerCase().includes(tag))
+		// Chaque recette commence avec true
+		let recipeHasAllTags = true
 
-			// Validation finale du tag (Condition "OU" entre les différents champs)
-			return inTitle || inDesc || inApp || inIngr || inUst
-		})
-	})
+		// Évaluation de chaque critère de filtrage
+		for (let j = 0; j < tagsArray.length; j++) {
+			const tag = tagsArray[j]
+
+			// On présume qu'on n'a pas encore trouvé ce mot dans la recette
+			let tagFound = false
+
+			// Recherche de niveau 1 (Strings simples via indexOf)
+			if (
+				recipe.name.toLowerCase().indexOf(tag) !== -1 ||
+				recipe.description.toLowerCase().indexOf(tag) !== -1 ||
+				recipe.appliance.toLowerCase().indexOf(tag) !== -1
+			) {
+				tagFound = true
+			}
+
+			// Recherche de niveau 2 (Ingrédients), QUE si on n'a pas déjà trouvé le mot juste au-dessus, avec optimisation d'arrêt
+			if (!tagFound) {
+				for (let k = 0; k < recipe.ingredients.length; k++) {
+					if (
+						recipe.ingredients[k].ingredient.toLowerCase().indexOf(tag) !== -1
+					) {
+						tagFound = true
+						break
+					}
+				}
+			}
+
+			// Recherche de niveau 3 (Ustensiles), QUE si on n'a pas déjà trouvé le mot juste au-dessus, avec optimisation d'arrêt
+			if (!tagFound) {
+				for (let l = 0; l < recipe.ustensils.length; l++) {
+					if (recipe.ustensils[l].toLowerCase().indexOf(tag) !== -1) {
+						tagFound = true
+						break
+					}
+				}
+			}
+
+			// Disqualification si le tag est introuvable
+			if (!tagFound) {
+				recipeHasAllTags = false
+				break
+			}
+		}
+
+		// Validation et ajout de la recette
+		if (recipeHasAllTags) {
+			finalRecipes.push(recipe)
+		}
+	}
 
 	// Mise à jour de la vue
 	renderRecipesCards(finalRecipes)
