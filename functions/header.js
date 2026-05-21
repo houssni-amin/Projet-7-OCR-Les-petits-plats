@@ -3,10 +3,10 @@ import { transformSearchTextToTag } from "./search.js"
 export function buildHeader() {
 	const header = document.createElement("header")
 	header.className =
-		"relative w-full h-[667px] bg-[linear-gradient(rgba(0,0,0,0.3),rgba(0,0,0,0.3)),url('/pictures/header-bg.jpg')] bg-cover bg-center flex flex-col items-center justify-center"
+		"relative w-full h-[667px] bg-[linear-gradient(rgba(0,0,0,0.3),rgba(0,0,0,0.3)),url('./pictures/header-bg.jpg')] bg-cover bg-center flex flex-col items-center justify-center"
 
 	const logo = document.createElement("img")
-	logo.src = "/pictures/logo.png"
+	logo.src = "./pictures/logo-main.png"
 	logo.alt = "Logo : Les petits plats"
 	logo.className = "absolute top-15 left-15 w-60"
 
