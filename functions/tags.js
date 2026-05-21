@@ -13,7 +13,16 @@ export function addTagFilter(mot) {
 	badge.className =
 		"bg-[#FFD15B] py-2 px-4 rounded-[10px] flex items-center gap-3 font-medium"
 
-	badge.innerHTML = `<span class="text-sm capitalize">${mot}</span><button class="cursor-pointer">✕</button>`
+	const textSpan = document.createElement("span")
+	textSpan.className = "text-sm capitalize"
+	textSpan.textContent = mot
+
+	const closeBtn = document.createElement("button")
+	closeBtn.className = "cursor-pointer"
+	closeBtn.textContent = "x"
+
+	badge.appendChild(textSpan)
+	badge.appendChild(closeBtn)
 
 	// Gestion de la suppression du tag
 	badge.querySelector("button").addEventListener("click", () => {
