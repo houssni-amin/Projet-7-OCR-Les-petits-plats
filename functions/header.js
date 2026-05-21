@@ -7,6 +7,7 @@ export function buildHeader() {
 
 	const logo = document.createElement("img")
 	logo.src = "/pictures/logo.png"
+	logo.alt = "Logo : Les petits plats"
 	logo.className = "absolute top-15 left-15 w-60"
 
 	const h1 = document.createElement("h1")

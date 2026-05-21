@@ -27,6 +27,7 @@ export function renderRecipesCards(recipesArray) {
 
 		const image = document.createElement("img")
 		image.src = `./pictures/${recipe.image}`
+		image.alt = `image : ${recipe.name}`
 		image.className = "object-cover w-full h-[250px]"
 
 		const textContainer = document.createElement("div")
