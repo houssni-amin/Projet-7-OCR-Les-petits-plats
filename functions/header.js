@@ -1,4 +1,4 @@
-import { transformSearchTextToTag } from "./search.js"
+import { handleMainSearch } from "./search.js"
 
 export function buildHeader() {
 	const header = document.createElement("header")
@@ -24,7 +24,7 @@ export function buildHeader() {
       <input
         type="text"
         placeholder="Rechercher une recette, un ingrédient, ..."
-    class="w-full h-16 bg-white rounded-xl px-6 text-lg text-gray-500 outline-none border-none rounded-lg flex items-center justify-center"
+        class="w-full h-16 bg-white rounded-xl px-6 text-lg text-gray-500 outline-none border-none rounded-lg flex items-center justify-center"
       />
       <button class="group absolute top-2 right-2 bg-black w-12 h-12 rounded-lg flex justify-center items-center hover:bg-[#FFD15B] transition-colors cursor-pointer">
         <svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -40,20 +40,10 @@ export function buildHeader() {
 	header.appendChild(searchBar)
 
 	const inputMainSearch = searchBar.querySelector("input")
-	const btnMainSearch = searchBar.querySelector("button")
 
-	// Validation via touche "Entrée"
-	inputMainSearch.addEventListener("keydown", (e) => {
-		if (e.key === "Enter") {
-			e.preventDefault()
-			transformSearchTextToTag(inputMainSearch)
-		}
-	})
-
-	// Validation via clic sur la loupe
-	btnMainSearch.addEventListener("click", (e) => {
-		e.preventDefault()
-		transformSearchTextToTag(inputMainSearch)
+	// Écouteur d'événement sur les touches
+	inputMainSearch.addEventListener("input", (e) => {
+		handleMainSearch(e.target.value)
 	})
 
 	return header

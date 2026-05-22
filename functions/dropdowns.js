@@ -1,4 +1,6 @@
 import { recipeCounter, tagsContainer } from "./store.js"
+import { addTagFilter } from "./tags.js"
+
 export function closeAllFilters() {
 	document.querySelectorAll("[id^='dropdown-']").forEach((el) => {
 		el.classList.add("hidden")
@@ -104,4 +106,52 @@ export function buildFilterDropdownsContainer() {
 	filterSection.appendChild(tagsContainer)
 
 	return filterSection
+}
+
+// Actualise le contenu des menus déroulants
+export function updateDropdownLists(recipesToDisplay) {
+	const ingredientsSet = new Set()
+	const appareilsSet = new Set()
+	const ustensilesSet = new Set()
+
+	// Extraction des données à partir des recettes restantes
+	recipesToDisplay.forEach((recipe) => {
+		recipe.ingredients.forEach((i) => {
+			ingredientsSet.add(i.ingredient.toLowerCase())
+		})
+
+		appareilsSet.add(recipe.appliance.toLowerCase())
+
+		recipe.ustensils.forEach((u) => {
+			ustensilesSet.add(u.toLowerCase())
+		})
+	})
+
+	// Fonction utilitaire interne pour regénérer le HTML d'une liste spécifique
+	const fillList = (setItems, listId) => {
+		const listContainer = document.querySelector(`#list-${listId}`)
+
+		listContainer.innerHTML = ""
+
+		Array.from(setItems)
+			.sort()
+			.forEach((mot) => {
+				// Création de l'élément visuel pour chaque mot-clé
+				const p = document.createElement("p")
+				p.innerText = mot
+				p.className =
+					"text-sm text-black py-1 px-2 cursor-pointer hover:bg-[#FFD15B] rounded capitalize transition-colors"
+
+				p.addEventListener("click", () => {
+					addTagFilter(mot)
+					closeAllFilters()
+				})
+
+				listContainer.appendChild(p)
+			})
+	}
+
+	fillList(ingredientsSet, "ingredients")
+	fillList(appareilsSet, "appareils")
+	fillList(ustensilesSet, "ustensiles")
 }
